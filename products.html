@@ -1,0 +1,777 @@
+<!-- Developed by: Jan Andrei Fernando of ITMAWD 12-A (STI College San Fernando, Pampanga) -->
+<!-- Developed on: February 6, 2025 -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/static/images/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Products - Keltech Computer Center</title>
+    <meta name="description" content="Browse premium PC components and systems at Keltech Computer Center.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(
+                135deg,
+                #0f172a 0%,
+                #1e1b4b 50%,
+                #0f172a 100%
+            );
+            min-height: 100vh;
+        }
+        /* Reuse your existing styles */
+        .evolving-gradient {
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            background-image: linear-gradient(
+                45deg,
+                rgba(91, 33, 182, 0.15),
+                rgba(29, 78, 216, 0.15),
+                rgba(124, 58, 237, 0.15),
+                rgba(37, 99, 235, 0.15)
+            );
+        }
+        
+        .text-gradient-animate {
+            background-size: 200% auto;
+            background-image: linear-gradient(
+                -45deg,
+                #6366f1,
+                #a855f7,
+                #3b82f6,
+                #8b5cf6
+            );
+            animation: textGradient 5s ease infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
+        }
+
+        @keyframes textGradient {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
+        }
+
+        .nav-glass {
+            background: rgba(17, 17, 27, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        }
+
+        .bg-mesh {
+            background-image: 
+                linear-gradient(to right, rgba(17, 17, 27, 0.9), rgba(17, 17, 27, 0.8)),
+                radial-gradient(at 20% 30%, rgba(124, 58, 237, 0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 40%, rgba(37, 99, 235, 0.2) 0px, transparent 50%),
+                radial-gradient(at 40% 70%, rgba(91, 33, 182, 0.2) 0px, transparent 50%);
+            background-blend-mode: overlay;
+        }
+
+        /* Category Icons Background */
+        .category-icon-bg {
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+        }
+
+        /* Enhanced Header Section */
+        .header-bg {
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.3),
+                rgba(0, 0, 0, 0)
+            );
+            backdrop-filter: blur(20px);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Category-specific colors */
+        .category-cpu { color: #818cf8; }
+        .category-gpu { color: #f87171; }
+        .category-ram { color: #34d399; }
+        .category-storage { color: #fbbf24; }
+        .category-motherboard { color: #60a5fa; }
+        .category-psu { color: #f472b6; }
+        .category-case { color: #a78bfa; }
+        .category-monitor { color: #4ade80; }
+
+        /* Add these new layout styles */
+        .grid-layout {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
+
+        .card-layout {
+            aspect-ratio: 4/5;
+            max-height: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            height: 35%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+        }
+
+        .card-body {
+            height: 65%;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Make product titles smaller */
+        .product-title {
+            font-size: 0.9rem;
+            line-height: 1.2;
+            max-height: 2.4rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Compact specs display */
+        .specs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            max-height: 3.6rem;
+            overflow: hidden;
+        }
+
+        .spec-tag {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        /* Update the product grid container */
+        #productsGrid {
+            @apply grid-layout max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+        }
+
+        /* Update the filter section for better spacing */
+        .filter-section {
+            @apply sticky top-0 z-40 py-6 backdrop-blur-md bg-gray-900/80;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Update loading and no products messages for consistent spacing */
+        .message-container {
+            @apply flex flex-col items-center justify-center py-12 px-4;
+            min-height: 400px;
+        }
+
+        /* Update product grid layout */
+        .product-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            padding: 1rem;
+        }
+
+        /* Compact product card */
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            padding: 1rem;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+        }
+
+        .card-body {
+            padding: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            line-height: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: white;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-bottom: auto;
+        }
+
+        .spec-tag {
+            font-size: 0.65rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.25rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card-footer {
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .stock-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+        }
+
+        .in-stock {
+            background: rgba(34, 197, 94, 0.2);
+            color: rgb(34, 197, 94);
+        }
+
+        .out-stock {
+            background: rgba(239, 68, 68, 0.2);
+            color: rgb(239, 68, 68);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="fixed w-full top-0 left-0 nav-glass z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex-shrink-0 flex items-center">
+                    <img class="h-12 w-auto" src="images/logo.png" alt="Keltech Computer Center">
+                    <div class="ml-3">
+                        <p class="text-lg font-bold text-gradient-animate">Keltech Computer Center</p>
+                        <p class="text-xs text-gray-400">Premium PC Building & Components</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex md:items-center md:space-x-8">
+                    <a href="/" class="text-gray-200 hover:text-white font-medium transition-colors">Home</a>
+                    <a href="/products.html" class="text-white font-medium transition-colors border-b-2 border-purple-500">Products</a>
+                    <a href="/build-pc.html" class="text-gray-200 hover:text-white font-medium transition-colors">Build PC</a>
+                    <a href="/contact.html" class="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-2 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/25">
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Updated Products Header -->
+    <section class="relative pt-32 pb-12 overflow-hidden">
+        <div class="header-bg absolute inset-0"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                Browse Our Products
+            </h1>
+            <p class="text-xl text-gray-300 mb-8 text-center max-w-3xl mx-auto">
+                Explore our premium selection of PC components and systems, all carefully selected for performance and reliability.
+            </p>
+        </div>
+    </section>
+
+    <!-- Updated Filter Section -->
+    <section class="filter-section sticky top-0 z-40 py-4 mb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div class="flex gap-4 items-center">
+                    <div>
+                        <label for="categoryFilter" class="block text-sm font-medium text-gray-400 mb-1">Category</label>
+                        <select id="categoryFilter" class="bg-gray-800 text-white rounded-lg border border-gray-700 px-4 py-2 w-48">
+                            <option value="">All Categories</option>
+                            <option value="CPU">CPUs</option>
+                            <option value="Motherboard">Motherboards</option>
+                            <option value="RAM">Memory</option>
+                            <option value="Storage">Storage</option>
+                            <option value="GPU">Graphics Cards</option>
+                            <option value="PSU">Power Supplies</option>
+                            <option value="Desktop">Desktop PCs</option>
+                            <option value="Laptop">Laptops</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sortBy" class="block text-sm font-medium text-gray-400 mb-1">Sort By</label>
+                        <select id="sortBy" class="bg-gray-800 text-white rounded-lg border border-gray-700 px-4 py-2 w-48">
+                            <option value="name">Name</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="w-full md:w-auto">
+                    <label for="searchInput" class="block text-sm font-medium text-gray-400 mb-1">Search</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search products..." 
+                               class="bg-gray-800 text-white rounded-lg border border-gray-700 px-4 py-2 pl-10 w-full md:w-80">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Updated Product Grid -->
+    <section class="py-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="message-container">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-500 mb-4"></i>
+                <p class="text-gray-400">Loading products...</p>
+            </div>
+            
+            <!-- Products Grid -->
+            <div id="productsGrid" class="product-grid">
+                <!-- Product cards will be inserted here -->
+            </div>
+            
+            <!-- No Products Message -->
+            <div id="noProductsMessage" class="message-container hidden">
+                <i class="fas fa-box-open text-4xl text-gray-600 mb-4"></i>
+                <p class="text-xl text-gray-400">No products match your search criteria</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div>
+                    <img class="h-8 w-auto mb-4" src="images/logo.png" alt="Keltech">
+                    <p class="text-gray-400">Your trusted partner in building premium custom PCs and providing top-tier tech solutions.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-300">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="/build-pc.html" class="text-gray-400 hover:text-purple-400 transition-colors">PC Builder</a></li>
+                        <li><a href="/products.html" class="text-gray-400 hover:text-purple-400 transition-colors">Products</a></li>
+                        <li><a href="/inventory.html" class="text-gray-400 hover:text-purple-400 transition-colors">Inventory</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-300">Contact Us</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-map-marker-alt w-6"></i> 123 Tech Street, Manila</li>
+                        <li><i class="fas fa-phone w-6"></i> (02) 8123-4567</li>
+                        <li><i class="fas fa-envelope w-6"></i> info@keltech.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+                <p class="text-gray-400">© 2024 Keltech Computer Center. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden flex items-center">
+        <span id="toastMessage"></span>
+        <button onclick="this.parentElement.classList.add('hidden')" class="ml-3 text-white">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <script>
+        // Products page specific script - avoid conflicts with other scripts
+        (function() {
+            // Keep products page state isolated
+            const productsPage = {
+                products: [],
+                filteredProducts: [],
+                currentCategory: '',
+                currentSort: 'name',
+                searchTerm: ''
+            };
+
+            // Updated loadProducts function with better database initialization
+            async function loadProducts() {
+                try {
+                    console.log('Fetching products...');
+                    const response = await fetch('/api/inventory.php');
+                    console.log(`Response status: ${response.status}`);
+                    
+                    const rawText = await response.text();
+                    console.log('Raw response: ', rawText);
+                    
+                    let data;
+                    try {
+                        data = JSON.parse(rawText);
+                        console.log('Parsed data:', data);
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        throw new Error('Failed to parse server response');
+                    }
+                    
+                    if (!data.success) {
+                        // Check if database needs setup
+                        if (data.code === '42S02' || (data.missing_tables && data.missing_tables.length > 0)) {
+                            console.log("Database tables missing, needs initialization...");
+                            showToast('Database tables missing. Initializing...', 'info');
+                            
+                            const statusResponse = await fetch('/api/db-status.php?action=fix');
+                            const statusData = await statusResponse.json();
+                            
+                            if (statusData.success) {
+                                console.log("Tables fixed:", statusData);
+                                
+                                // Now run the setup script to populate some sample data
+                                const setupResponse = await fetch('/api/setup.php?samples=true');
+                                const setupData = await setupResponse.json();
+                                
+                                if (setupData.success) {
+                                    showToast('Database initialized with sample data!', 'success');
+                                    // Try loading products again after initialization
+                                    return loadProducts();
+                                } else {
+                                    throw new Error('Failed to add sample data: ' + setupData.error);
+                                }
+                            } else {
+                                throw new Error('Failed to fix database tables: ' + statusData.error);
+                            }
+                        } else {
+                            throw new Error(data.message || 'Failed to load products');
+                        }
+                    }
+                    
+                    productsPage.products = data.inventory || [];
+                    productsPage.filteredProducts = [...productsPage.products];
+                    renderProducts();
+                    
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    showToast('Error loading products: ' + error.message, 'error');
+                } finally {
+                    // Hide loading indicator
+                    document.getElementById('loadingIndicator').classList.add('hidden');
+                }
+            }
+
+            // Filter and sort products
+            function filterAndSortProducts() {
+                const { products, currentCategory, searchTerm, currentSort } = productsPage;
+                
+                // Apply filters
+                let filtered = products;
+                
+                if (currentCategory) {
+                    filtered = filtered.filter(p => p.category === currentCategory);
+                }
+                
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    filtered = filtered.filter(p => 
+                        p.name.toLowerCase().includes(term) ||
+                        p.category.toLowerCase().includes(term) ||
+                        p.specifications.some(spec => 
+                            spec.name.toLowerCase().includes(term) || 
+                            spec.value.toLowerCase().includes(term)
+                        )
+                    );
+                }
+                
+                // Apply sorting
+                switch (currentSort) {
+                    case 'price-asc':
+                        filtered.sort((a, b) => getLowestPrice(a) - getLowestPrice(b));
+                        break;
+                    case 'price-desc':
+                        filtered.sort((a, b) => getLowestPrice(b) - getLowestPrice(a));
+                        break;
+                    case 'newest':
+                        filtered.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+                        break;
+                    case 'name':
+                    default:
+                        filtered.sort((a, b) => a.name.localeCompare(b.name));
+                        break;
+                }
+                
+                productsPage.filteredProducts = filtered;
+                renderProducts();
+            }
+
+            // Helper to get lowest price from batches
+            function getLowestPrice(product) {
+                if (!product.batches || product.batches.length === 0) return 0;
+                const prices = product.batches
+                    .filter(batch => parseInt(batch.remaining) > 0)
+                    .map(batch => parseFloat(batch.sellPrice));
+                return prices.length > 0 ? Math.min(...prices) : 0;
+            }
+
+            // Format specifications for display
+            function formatSpecifications(specs) {
+                if (!specs || !Array.isArray(specs) || specs.length === 0) return '';
+                
+                return specs.slice(0, 3).map(spec => {
+                    const name = spec.name.charAt(0).toUpperCase() + spec.name.slice(1);
+                    return `<span class="spec-tag">${name}: ${spec.value}</span>`;
+                }).join('');
+            }
+
+            function getCategoryIcon(category) {
+                const icons = {
+                    'CPU': '<i class="fas fa-microchip fa-3x text-purple-400"></i>',
+                    'Motherboard': '<i class="fas fa-server fa-3x text-blue-400"></i>',
+                    'RAM': '<i class="fas fa-memory fa-3x text-green-400"></i>',
+                    'Storage': '<i class="fas fa-hdd fa-3x text-yellow-400"></i>',
+                    'GPU': '<i class="fas fa-tv fa-3x text-red-400"></i>',
+                    'PSU': '<i class="fas fa-plug fa-3x text-orange-400"></i>',
+                    'Desktop': '<i class="fas fa-desktop fa-3x text-indigo-400"></i>',
+                    'Laptop': '<i class="fas fa-laptop fa-3x text-teal-400"></i>',
+                    'Monitor': '<i class="fas fa-desktop fa-3x text-pink-400"></i>',
+                    'Keyboard': '<i class="fas fa-keyboard fa-3x text-gray-400"></i>',
+                    'Mouse': '<i class="fas fa-mouse fa-3x text-red-400"></i>',
+                    'Headset': '<i class="fas fa-headphones fa-3x text-purple-400"></i>',
+                    'Webcam': '<i class="fas fa-camera fa-3x text-blue-400"></i>',
+                    'Speakers': '<i class="fas fa-volume-up fa-3x text-green-400"></i>',
+                    'Case': '<i class="fas fa-box fa-3x text-gray-400"></i>',
+                    'CPU Cooler': '<i class="fas fa-fan fa-3x text-blue-400"></i>',
+                    'Case Fan': '<i class="fas fa-fan fa-3x text-cyan-400"></i>'
+                };
+                return icons[category] || '<i class="fas fa-microchip fa-3x text-gray-400"></i>';
+            }
+
+            // Render products to grid
+            function renderProducts() {
+                const productsGrid = document.getElementById('productsGrid');
+                const noProductsMessage = document.getElementById('noProductsMessage');
+                
+                if (productsPage.filteredProducts.length === 0) {
+                    productsGrid.classList.add('hidden');
+                    noProductsMessage.classList.remove('hidden');
+                    return;
+                }
+                
+                productsGrid.classList.remove('hidden');
+                noProductsMessage.classList.add('hidden');
+                
+                productsGrid.innerHTML = productsPage.filteredProducts.map(product => {
+                    // Get active batch with stock
+                    const activeBatch = product.batches?.find(b => parseInt(b.remaining) > 0);
+                    const price = activeBatch ? parseFloat(activeBatch.sellPrice) : 0;
+                    const inStock = activeBatch && parseInt(activeBatch.remaining) > 0;
+                    
+                    return `
+                        <div class="product-card">
+                            <div class="card-header">
+                                <div class="text-center">
+                                    <div class="category-${product.category.toLowerCase()}">
+                                        ${getCategoryIcon(product.category)}
+                                    </div>
+                                    <div class="mt-2 text-xs font-medium text-gray-300">${product.category}</div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-content">
+                                    <h3 class="product-title font-medium text-white">${product.name}</h3>
+                                    <div class="specs-container text-gray-400">
+                                        ${formatSpecifications(product.specifications)}
+                                    </div>
+                                </div>
+                                <div class="card-footer flex justify-between items-center">
+                                    <div class="text-sm font-bold text-white">
+                                        ${inStock ? `₱${price.toFixed(2)}` : 'Out of Stock'}
+                                    </div>
+                                    <button class="px-3 py-1 text-xs ${
+                                        inStock 
+                                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
+                                            : 'bg-gray-700'
+                                    } rounded-lg font-medium text-white" ${!inStock ? 'disabled' : ''}>
+                                        ${inStock ? 'View Details' : 'Out of Stock'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Event listeners for filters and search
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                productsPage.currentCategory = this.value;
+                filterAndSortProducts();
+            });
+            
+            document.getElementById('sortBy').addEventListener('change', function() {
+                productsPage.currentSort = this.value;
+                filterAndSortProducts();
+            });
+            
+            document.getElementById('searchInput').addEventListener('input', function() {
+                productsPage.searchTerm = this.value.trim();
+                filterAndSortProducts();
+            });
+
+            // Toast notification function
+            function showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toastMessage');
+                
+                if (toast && toastMessage) {
+                    toast.className = `fixed bottom-4 right-4 ${type === 'error' ? 'bg-red-500' : type === 'warning' ? 'bg-yellow-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500'} text-white px-6 py-3 rounded-lg shadow-lg flex items-center`;
+                    toastMessage.textContent = message;
+                    toast.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 3000);
+                } else {
+                    console.log(`Toast: ${message} (${type})`);
+                }
+            }
+
+            // Initialize
+            document.addEventListener('DOMContentLoaded', loadProducts);
+
+            // Expose necessary functions to window
+            window.showToast = showToast;
+        })();
+
+        // Enhanced scroll behavior for navbar
+        const navbar = document.querySelector('nav');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll <= 0) {
+                navbar.classList.remove('py-2');
+                navbar.classList.add('py-4');
+            } else {
+                navbar.classList.add('py-2');
+                navbar.classList.remove('py-4');
+            }
+
+            if (currentScroll > lastScroll && currentScroll > 80) {
+                navbar.classList.add('-translate-y-full');
+            } else {
+                navbar.classList.remove('-translate-y-full');
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>

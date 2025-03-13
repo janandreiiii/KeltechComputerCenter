@@ -1,0 +1,1193 @@
+<!-- Developed by: Jan Andrei Fernando of ITMAWD 12-A (STI College San Fernando, Pampanga) -->
+<!-- Developed on: February 6, 2025 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keltech Computer Center - Inventory System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Add Inter font for modern typography -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="modal.js" defer></script>
+    <script src="app.js" defer></script>
+    <script src="handlers.js" defer></script>
+    <script src="action-fix.js" defer></script>
+    <script src="debug.js" defer></script>
+    
+    <!-- Debug script to check handler loading -->
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("⚠️ DOM Content Loaded");
+            console.log("Handler availability check:", {
+                recordPurchase: typeof window.recordPurchase === 'function',
+                recordSale: typeof window.recordSale === 'function',
+                viewBatches: typeof window.viewBatches === 'function',
+                editProduct: typeof window.editProduct === 'function',
+                deleteProduct: typeof window.deleteProduct === 'function',
+                ActionHandlers: typeof window.ActionHandlers === 'object'
+            });
+            
+            // Add event listener to document for debugging clicks
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('button') && e.target.closest('button').getAttribute('onclick')) {
+                    console.log("🖱️ Button clicked with onclick:", 
+                        e.target.closest('button').getAttribute('onclick'));
+                }
+            }, true);
+        });
+    </script>
+
+    <!-- Fix z-index styles for modals -->
+    <style>
+        /* Ensure modals appear on top */
+        .fixed {
+            z-index: 9999 !important;
+        }
+        
+        /* Add visual debugging for modals */
+        .modal-debug-outline {
+            outline: 3px dashed red !important;
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter var', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <img src="https://placehold.co/40x40" alt="Logo" class="h-8 w-8 rounded">
+                    <h1 class="text-xl font-semibold text-gray-800">Keltech Computer Center</h1>
+                </div>
+                <div class="hidden md:flex items-center space-x-1">
+                    <button onclick="showInventory()" class="px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-box-open mr-2"></i>Inventory
+                    </button>
+                    <button onclick="showAddProduct()" class="px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Add Product
+                    </button>
+                    <button onclick="showReports()" class="px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-chart-bar mr-2"></i>Reports
+                    </button>
+                </div>
+                <button class="md:hidden p-2 rounded-md hover:bg-gray-100" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-b shadow-sm">
+        <div class="container mx-auto py-2 px-4 space-y-1">
+            <button onclick="showInventory()" class="w-full text-left px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-box-open mr-2"></i>Inventory
+            </button>
+            <button onclick="showAddProduct()" class="w-full text-left px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-plus mr-2"></i>Add Product
+            </button>
+            <button onclick="showReports()" class="w-full text-left px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                <i class="fas fa-chart-bar mr-2"></i>Reports
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Inventory Section -->
+        <div id="inventorySection" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4 md:mb-0">Inventory Management</h2>
+                    <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" id="searchInput" placeholder="Search products..." 
+                                   class="pl-10 w-full sm:w-64 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select id="categoryFilter" 
+                                class="w-full sm:w-48 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Categories</option>
+                            <optgroup label="Systems">
+                                <option value="Desktop">Desktop</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="All-in-One">All-in-One</option>
+                            </optgroup>
+                            <optgroup label="Components">
+                                <option value="CPU">CPU</option>
+                                <option value="Motherboard">Motherboard</option>
+                                <option value="RAM">RAM</option>
+                                <option value="Storage">Storage</option>
+                                <option value="GPU">GPU</option>
+                                <option value="PSU">PSU</option>
+                                <option value="Case">Case</option>
+                                <option value="CPU Cooler">CPU Cooler</option>
+                                <option value="Case Fan">Case Fan</option>
+                                <option value="Accessories">Accessories</option>
+                            </optgroup>
+                            <optgroup label="Peripherals">
+                                <option value="Monitor">Monitor</option>
+                                <option value="Keyboard">Keyboard</option>
+                                <option value="Mouse">Mouse</option>
+                                <option value="Headset">Headset</option>
+                                <option value="Webcam">Webcam</option>
+                                <option value="Speakers">Speakers</option>
+                                <option value="Microphone">Microphone</option>
+                            </optgroup>
+                        </select>
+                        <label for="importExcel" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer">
+                            <i class="fas fa-file-import mr-2"></i>
+                            Import Excel
+                        </label>
+                        <input type="file" id="importExcel" accept=".xlsx,.xls" class="hidden" onchange="importFromExcel(this)">
+                        <button onclick="exportToExcel()" 
+                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <i class="fas fa-file-excel mr-2"></i>
+                            Export to Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Price</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sell Price</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Table content will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Product Section -->
+        <div id="addProductSection" class="hidden">
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Add New Product</h2>
+                <form id="addProductForm" class="space-y-6">
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                            <input type="text" id="productName" required
+                                   class="w-full border border-gray-300 rounded-lg p-2.5">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select id="productCategory" required
+                                    class="w-full border border-gray-300 rounded-lg p-2.5"
+                                    onchange="toggleSpecificationFields()">
+                                <option value="">Select Category</option>
+                                <optgroup label="Systems">
+                                    <option value="Desktop">Desktop</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="All-in-One">All-in-One</option>
+                                </optgroup>
+                                <optgroup label="Components">
+                                    <option value="CPU">CPU</option>
+                                    <option value="Motherboard">Motherboard</option>
+                                    <option value="RAM">RAM</option>
+                                    <option value="Storage">Storage</option>
+                                    <option value="GPU">GPU</option>
+                                    <option value="PSU">PSU</option>
+                                    <option value="Case">Case</option>
+                                    <option value="CPU Cooler">CPU Cooler</option>
+                                    <option value="Case Fan">Case Fan</option>
+                                    <option value="Accessories">Accessories</option>
+                                </optgroup>
+                                <optgroup label="Peripherals">
+                                    <option value="Monitor">Monitor</option>
+                                    <option value="Keyboard">Keyboard</option>
+                                    <option value="Mouse">Mouse</option>
+                                    <option value="Headset">Headset</option>
+                                    <option value="Webcam">Webcam</option>
+                                    <option value="Speakers">Speakers</option>
+                                    <option value="Microphone">Microphone</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Component Specifications Section -->
+                    <div id="componentSpecs" class="hidden border-t border-b border-gray-200 py-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Component Specifications</h3>
+                        
+                        <!-- CPU Specifications -->
+                        <div id="cpuSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Socket Type</label>
+                                    <input type="text" name="socket" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Core Count</label>
+                                    <input type="number" name="cores" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Base Clock (GHz)</label>
+                                    <input type="number" step="0.1" name="baseClock" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">TDP (Watts)</label>
+                                    <input type="number" name="tdp" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Motherboard Specifications -->
+                        <div id="motherboardSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Socket Type</label>
+                                    <input type="text" name="socket" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Form Factor</label>
+                                    <select name="formFactor" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                        <option value="ATX">ATX</option>
+                                        <option value="Micro-ATX">Micro-ATX</option>
+                                        <option value="Mini-ITX">Mini-ITX</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">RAM Type</label>
+                                    <input type="text" name="ramType" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Max RAM (GB)</label>
+                                    <input type="number" name="maxRam" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RAM Specifications -->
+                        <div id="ramSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                                    <input type="text" name="ramType" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Capacity (GB)</label>
+                                    <input type="number" name="capacity" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Speed (MHz)</label>
+                                    <input type="number" name="speed" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Storage Specifications -->
+                        <div id="storageSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                                    <select name="storageType" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                        <option value="SSD">SSD</option>
+                                        <option value="HDD">HDD</option>
+                                        <option value="NVMe">NVMe</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Capacity (GB)</label>
+                                    <input type="number" name="capacity" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GPU Specifications -->
+                        <div id="gpuSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Memory Size (GB)</label>
+                                    <input type="number" name="vram" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Memory Type</label>
+                                    <input type="text" name="memoryType" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PSU Specifications -->
+                        <div id="psuSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Wattage</label>
+                                    <input type="number" name="wattage" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Efficiency Rating</label>
+                                    <select name="efficiency" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                        <option value="80+ White">80+ White</option>
+                                        <option value="80+ Bronze">80+ Bronze</option>
+                                        <option value="80+ Silver">80+ Silver</option>
+                                        <option value="80+ Gold">80+ Gold</option>
+                                        <option value="80+ Platinum">80+ Platinum</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Specifications -->
+                        <div id="desktopSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Processor</label>
+                                    <input type="text" name="processor" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">RAM</label>
+                                    <input type="text" name="ram" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Storage</label>
+                                    <input type="text" name="storage" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Graphics Card</label>
+                                    <input type="text" name="graphics" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Case</label>
+                                    <input type="text" name="case" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Power Supply</label>
+                                    <input type="text" name="powerSupply" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Operating System</label>
+                                    <input type="text" name="os" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Laptop Specifications -->
+                        <div id="laptopSpecs" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Processor</label>
+                                    <input type="text" name="processor" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">RAM</label>
+                                    <input type="text" name="ram" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Storage</label>
+                                    <input type="text" name="storage" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Display</label>
+                                    <input type="text" name="display" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Graphics Card</label>
+                                    <input type="text" name="graphics" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Battery</label>
+                                    <input type="text" name="battery" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Operating System</label>
+                                    <input type="text" name="os" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Weight (kg)</label>
+                                    <input type="number" step="0.1" name="weight" class="w-full border border-gray-300 rounded-lg p-2.5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing and Stock -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Buy Price</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-gray-500">₱</span>
+                                <input type="number" id="productBuyPrice" required min="0" step="0.01"
+                                       class="w-full pl-7 border border-gray-300 rounded-lg p-2.5">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sell Price</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-gray-500">₱</span>
+                                <input type="number" id="productSellPrice" required min="0" step="0.01"
+                                       class="w-full pl-7 border border-gray-300 rounded-lg p-2.5">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Initial Stock</label>
+                            <input type="number" id="productQuantity" required min="0"
+                                   class="w-full border border-gray-300 rounded-lg p-2.5">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" 
+                                class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <i class="fas fa-plus mr-2"></i>Add Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reportsSection" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl shadow-sm border p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-50 text-blue-600">
+                            <i class="fas fa-box-open text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Total Products</p>
+                            <p id="totalProducts" class="text-2xl font-semibold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-50 text-green-600">
+                            <i class="fas fa-dollar-sign text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Total Stock Value</p>
+                            <p id="totalValue" class="text-2xl font-semibold text-gray-900">$0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-50 text-yellow-600">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Low Stock Items</p>
+                            <p id="lowStockCount" class="text-2xl font-semibold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-50 text-purple-600">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Total Profits</p>
+                            <p id="totalProfits" class="text-2xl font-semibold text-gray-900">$0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-4 right-4 hidden">
+            <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <p id="toastMessage"></p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Declare inventory array once at the top
+        
+        // Update the loadProducts function with better database initialization
+        async function loadProducts() {
+            try {
+                console.log('Fetching products...');
+                const response = await fetch('../api/inventory.php');
+                console.log('Response status:', response.status);
+                
+                const text = await response.text();
+                console.log('Raw response:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Parsed data:', data);
+                    
+                    if (data.success) {
+                        // Check if we need to initialize database
+                        if (data.message && data.message.includes("not yet initialized")) {
+                            console.log("Database needs initialization...");
+                            return await initializeDatabase();
+                        }
+                        
+                        inventory = data.inventory || [];
+                        console.log('Inventory updated:', inventory);
+                        updateInventoryTable();
+                    } else {
+                        // Check if database tables are missing
+                        if (data.code === '42S02' || (data.missing_tables && data.missing_tables.length > 0)) {
+                            console.log("Database tables missing, needs fixing...");
+                            showToast('Database tables missing. Fixing...', 'info');
+                            return await fixDatabaseTables();
+                        }
+                        
+                        throw new Error(data.message || 'Failed to load inventory data');
+                    }
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError);
+                    throw new Error('Failed to parse server response');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showToast('Error loading products: ' + error.message, 'error');
+            }
+        }
+
+        // Enhanced database initialization
+        async function initializeDatabase() {
+            try {
+                console.log('Initializing database...');
+                showToast('Setting up database...', 'info');
+                
+                const response = await fetch('../api/setup.php?samples=true');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Database initialized successfully!', 'success');
+                    // Reload products after initialization
+                    await loadProducts();
+                    return data;
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error initializing database:', error);
+                showToast('Failed to initialize database: ' + error.message, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Function to fix database tables
+        async function fixDatabaseTables() {
+            try {
+                console.log('Fixing database tables...');
+                showToast('Repairing database structure...', 'info');
+                
+                // First check and fix table structure
+                const statusResponse = await fetch('../api/db-status.php?action=fix');
+                const statusData = await statusResponse.json();
+                
+                if (statusData.success) {
+                    console.log("Database structure fixed:", statusData);
+                    
+                    // Now run setup to populate initial data
+                    const setupResponse = await fetch('../api/setup.php?samples=true');
+                    const setupData = await setupResponse.json();
+                    
+                    if (setupData.success) {
+                        showToast('Database repaired and sample data added!', 'success');
+                        // Load products after fixing
+                        await loadProducts();
+                        return true;
+                    } else {
+                        throw new Error('Failed to add sample data: ' + setupData.error);
+                    }
+                } else {
+                    throw new Error('Failed to fix database tables: ' + statusData.error);
+                }
+            } catch (error) {
+                console.error('Error fixing database:', error);
+                showToast('Failed to repair database: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // Add this helper function for table updates
+        function refreshInventoryTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            if (!tbody) return;
+            
+            // Clear existing content first
+            tbody.innerHTML = '';
+            
+            // Then rebuild the table
+            inventory.forEach(product => {
+                // Create default empty batch object if batches array is empty
+                const latestBatch = (product.batches && product.batches.length > 0) ? 
+                                   product.batches[0] : 
+                                   { buyPrice: 0, sellPrice: 0, remaining: 0 };
+
+                // Use createProductRow function to ensure consistent row generation
+                if (typeof window.createProductRow === 'function') {
+                    const row = window.createProductRow(product, latestBatch);
+                    tbody.appendChild(row);
+                } else {
+                    // Fallback if createProductRow is not available
+                    const buyPrice = parseFloat(latestBatch.buyPrice) || 0;
+                    const sellPrice = parseFloat(latestBatch.sellPrice) || 0;
+                    const stock = parseInt(latestBatch.remaining) || 0;
+                    const margin = sellPrice > 0 ? ((sellPrice - buyPrice) / sellPrice * 100).toFixed(2) : '0';
+
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.setAttribute('data-product-id', product.id);
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${product.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.category}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₱${buyPrice.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₱${sellPrice.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm ${margin >= 20 ? 'text-green-600' : 'text-yellow-600'}">${margin}%</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-sm rounded-full ${
+                                stock > 10 ? 'bg-green-100 text-green-800' :
+                                stock > 0 ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                            }">
+                                ${stock}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div class="flex items-center space-x-3">
+                                <button onclick="recordPurchase('${product.id}')" 
+                                        class="text-green-600 hover:text-green-800 transition-colors"
+                                        title="Record Purchase">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button onclick="recordSale('${product.id}')" 
+                                        class="text-blue-600 hover:text-blue-800 transition-colors"
+                                        ${stock === 0 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}
+                                        title="Record Sale">
+                                    <i class="fas fa-cash-register"></i>
+                                </button>
+                                <button onclick="viewBatches('${product.id}')" 
+                                        class="text-purple-600 hover:text-purple-800 transition-colors"
+                                        title="View Batches">
+                                    <i class="fas fa-layer-group"></i>
+                                </button>
+                                <button onclick="editProduct('${product.id}')" 
+                                        class="text-yellow-600 hover:text-yellow-800 transition-colors"
+                                        title="Edit Product">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteProduct('${product.id}')" 
+                                        class="text-red-600 hover:text-red-800 transition-colors"
+                                        title="Delete Product">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+
+        // Update the deleteProduct function
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`../api/products.php?id=${encodeURIComponent(productId)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Remove from local inventory array
+                    inventory = inventory.filter(p => p.id !== productId);
+                    
+                    // Remove the row from the table immediately
+                    const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+                    if (row) {
+                        row.remove();
+                    } else {
+                        // If row not found, refresh the whole table
+                        refreshInventoryTable();
+                    }
+                    
+                    // Update stats if on reports page
+                    if (!document.getElementById('reportsSection').classList.contains('hidden')) {
+                        updateReportStats();
+                    }
+                    
+                    showToast('Product deleted successfully', 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to delete product');
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast(`Failed to delete product: ${error.message}`, 'error');
+            }
+        }
+
+        // Replace the existing updateInventoryTable function
+        function updateInventoryTable() {
+            refreshInventoryTable();
+        }
+
+        // Call loadProducts when the page loads
+        document.addEventListener('DOMContentLoaded', loadProducts);
+
+        // Form submit event handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const addProductForm = document.getElementById('addProductForm');
+            
+            // Update the product form submission
+            if (addProductForm) {
+                addProductForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    try {
+                        // Disable submit button to prevent double submission
+                        const submitButton = this.querySelector('button[type="submit"]');
+                        submitButton.disabled = true;
+                        
+                        // Gather form data
+                        const name = document.getElementById('productName').value.trim();
+                        const category = document.getElementById('productCategory').value;
+                        const buyPrice = parseFloat(document.getElementById('productBuyPrice').value);
+                        const sellPrice = parseFloat(document.getElementById('productSellPrice').value);
+                        const quantity = parseInt(document.getElementById('productQuantity').value);
+                        
+                        if (!name || !category) {
+                            showToast('Product name and category are required', 'error');
+                            submitButton.disabled = false;
+                            return;
+                        }
+                        
+                        if (buyPrice <= 0 || sellPrice <= 0 || quantity < 0) {
+                            showToast('Please enter valid price and quantity values', 'error');
+                            submitButton.disabled = false;
+                            return;
+                        }
+                        
+                        // Collect specifications based on the selected category
+                        let specifications = [];
+                        const categorySpecsDiv = document.getElementById(`${category.toLowerCase()}Specs`);
+                        if (categorySpecsDiv && !categorySpecsDiv.classList.contains('hidden')) {
+                            const specInputs = categorySpecsDiv.querySelectorAll('input, select');
+                            specInputs.forEach(input => {
+                                if (input.value.trim()) {
+                                    specifications.push({
+                                        name: input.name,
+                                        value: input.value.trim()
+                                    });
+                                }
+                            });
+                        }
+                        
+                        // Create product data object
+                        const productData = {
+                            name: name,
+                            category: category,
+                            string_id: generateProductId(), // Generate a unique ID
+                            specifications: specifications,
+                            batch: {
+                                batch_id: generateBatchId(),
+                                quantity: quantity,
+                                remaining: quantity,
+                                buyPrice: buyPrice,
+                                sellPrice: sellPrice
+                            }
+                        };
+                        
+                        console.log('Submitting product data:', productData);
+                        
+                        // Send product data to server
+                        const response = await fetch('../api/add_product.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(productData)
+                        });
+
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showToast('Product added successfully!', 'success');
+                            addProductForm.reset();
+                            
+                            // Update the inventory array with the new product
+                            if (result.product) {
+                                inventory = [...inventory, result.product];
+                                updateInventoryTable();
+                            } else {
+                                // If product data not returned, reload all products
+                                await loadProducts();
+                            }
+                            
+                            showInventory(); // Switch to inventory view
+                        } else {
+                            throw new Error(result.message || 'Failed to add product');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error saving product:', error);
+                        showToast(error.message || 'Error adding product', 'error');
+                    } finally {
+                        // Re-enable submit button
+                        const submitButton = addProductForm.querySelector('button[type="submit"]');
+                        submitButton.disabled = false;
+                    }
+                });
+            }
+        });
+
+        // Make sure these functions are defined at the global level
+        function generateProductId() {
+            // Add current microseconds for more uniqueness
+            const prefix = 'KCC';
+            const now = new Date();
+            const timestamp = now.getTime().toString(36);
+            const micro = (performance.now() * 1000).toString(36).slice(0, 3);
+            const random = Math.random().toString(36).substring(2, 5);
+            return `${prefix}-${timestamp}${micro}${random}`.toUpperCase();
+        }
+
+        function generateBatchId() {
+            return 'BATCH-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        }
+
+        // Add this function to handle product deletion
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) {
+                return;
+            }
+
+            try {
+                console.log('Attempting to delete product:', productId);
+                
+                const response = await fetch(`../api/products.php?id=${encodeURIComponent(productId)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const text = await response.text();
+                console.log('Server response:', text);
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Failed to parse response:', text);
+                    throw new Error('Invalid server response');
+                }
+
+                if (data.success) {
+                    // Update UI immediately after successful deletion
+                    await updateUIAfterDelete(productId);
+                    showToast('Product deleted successfully', 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to delete product');
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast(`Failed to delete product: ${error.message}`, 'error');
+            }
+        }
+
+        // Add before deleteProduct function
+        async function updateUIAfterDelete(productId) {
+            // Remove from local inventory array
+            inventory = inventory.filter(p => p.id != productId);
+            
+            // Force re-render of table
+            const tbody = document.getElementById('inventoryTableBody');
+            if (tbody) {
+                updateInventoryTable();
+            }
+
+            // Update stats if on reports page
+            const reportsSection = document.getElementById('reportsSection');
+            if (reportsSection && !reportsSection.classList.contains('hidden')) {
+                updateReportStats();
+            }
+        }
+
+        // Add these helper functions at the global level
+        function getCurrentSection() {
+            if (!document.getElementById('inventorySection').classList.contains('hidden')) return 'inventory';
+            if (!document.getElementById('addProductSection').classList.contains('hidden')) return 'add';
+            if (!document.getElementById('reportsSection').classList.contains('hidden')) return 'reports';
+            return 'inventory'; // Default to inventory if none found
+        }
+
+        // Update the showInventory function to preserve state
+        function showInventory() {
+            document.getElementById('inventorySection').classList.remove('hidden');
+            document.getElementById('addProductSection').classList.add('hidden');
+            document.getElementById('reportsSection').classList.add('hidden');
+            // Don't reload, just ensure the table is up to date
+            updateInventoryTable();
+        }
+
+        // Record Purchase Handler
+        window.recordPurchase = function(productId) {
+            const product = inventory.find(p => p.id === productId);
+            if (!product) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-xl font-semibold mb-4">Record Purchase: ${product.name}</h3>
+                    <form id="purchaseForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                            <input type="number" id="purchaseQuantity" min="1" required
+                                   class="w-full border border-gray-300 rounded-lg p-2.5">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Buy Price (₱)</label>
+                            <input type="number" id="purchaseBuyPrice" min="0" step="0.01" required
+                                   class="w-full border border-gray-300 rounded-lg p-2.5">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sell Price (₱)</label>
+                            <input type="number" id="purchaseSellPrice" min="0" step="0.01" required
+                                   class="w-full border border-gray-300 rounded-lg p-2.5">
+                        </div>
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" onclick="this.closest('.fixed').remove()"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Save Purchase
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            document.getElementById('purchaseForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                try {
+                    const quantity = parseInt(document.getElementById('purchaseQuantity').value);
+                    const buyPrice = parseFloat(document.getElementById('purchaseBuyPrice').value);
+                    const sellPrice = parseFloat(document.getElementById('purchaseSellPrice').value);
+                    
+                    // Create new batch
+                    const batch = {
+                        batchId: generateBatchId(),
+                        quantity: quantity,
+                        remaining: quantity,
+                        buyPrice: buyPrice,
+                        sellPrice: sellPrice,
+                        dateAdded: new Date().toISOString()
+                    };
+
+                    await addBatch(productId, batch);
+                    modal.remove();
+                    await loadProducts(); // Refresh inventory data
+                    showToast('Purchase recorded successfully!');
+                } catch (error) {
+                    console.error('Error recording purchase:', error);
+                    showToast('Error recording purchase: ' + error.message, 'error');
+                }
+            });
+        };
+
+        // Record Sale Handler
+        window.recordSale = function(productId) {
+            const product = inventory.find(p => p.id === productId);
+            if (!product || !product.batches?.length) return;
+
+            const availableBatches = product.batches.filter(b => parseInt(b.remaining) > 0);
+            if (availableBatches.length === 0) {
+                showToast('No stock available!', 'error');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-xl font-semibold mb-4">Record Sale: ${product.name}</h3>
+                    <form id="saleForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select Batch</label>
+                            <select id="saleBatchSelect" required
+                                    class="w-full border border-gray-300 rounded-lg p-2.5">
+                                ${availableBatches.map(batch => `
+                                    <option value="${batch.batchId}">
+                                        Batch ${batch.batchId} - ${batch.remaining} units at ₱${batch.sellPrice}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                            <input type="number" id="saleQuantity" min="1" required
+                                   class="w-full border border-gray-300 rounded-lg p-2.5">
+                        </div>
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" onclick="this.closest('.fixed').remove()"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Record Sale
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            document.getElementById('saleForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                try {
+                    const batchId = document.getElementById('saleBatchSelect').value;
+                    const quantity = parseInt(document.getElementById('saleQuantity').value);
+                    
+                    const batch = availableBatches.find(b => b.batchId === batchId);
+                    if (!batch) throw new Error('Batch not found');
+                    
+                    if (quantity > batch.remaining) {
+                        throw new Error('Not enough stock in selected batch');
+                    }
+
+                    await recordTransaction(productId, {
+                        type: 'sale',
+                        batchId: batchId,
+                        quantity: quantity,
+                        price: batch.sellPrice
+                    });
+
+                    modal.remove();
+                    await loadProducts(); // Refresh inventory data
+                    showToast('Sale recorded successfully!');
+                } catch (error) {
+                    console.error('Error recording sale:', error);
+                    showToast('Error recording sale: ' + error.message, 'error');
+                }
+            });
+        };
+
+        // View Batches Handler
+        window.viewBatches = function(productId) {
+            const product = inventory.find(p => p.id === productId);
+            if (!product) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl">
+                    <h3 class="text-xl font-semibold mb-4">Batches: ${product.name}</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Batch ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Added</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Initial Qty</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remaining</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Buy Price</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sell Price</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                ${(product.batches || []).map(batch => `
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${batch.batchId}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            ${new Date(batch.dateAdded).toLocaleDateString()}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${batch.quantity}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${batch.remaining}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₱${parseFloat(batch.buyPrice).toFixed(2)}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₱${parseFloat(batch.sellPrice).toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="this.closest('.fixed').remove()"
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+
+        // Helper function to record transactions
+        async function recordTransaction(productId, transactionData) {
+            try {
+                const response = await fetch(`../api/transactions.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        productId,
+                        ...transactionData
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to record transaction');
+                
+                const result = await response.json();
+                if (!result.success) throw new Error(result.message);
+                
+                return result;
+            } catch (error) {
+                console.error('Transaction error:', error);
+                throw error;
+            }
+        }
+    </script>
+</body>
+</html>

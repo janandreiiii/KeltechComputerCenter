@@ -1,0 +1,810 @@
+<!-- Developed by: Jan Andrei Fernando of ITMAWD 12-A (STI College San Fernando, Pampanga) -->
+<!-- Developed on: February 6, 2025 -->
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/static/images/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keltech Computer Center - Premium PC Building & Components</title>
+  <meta name="description" content="Keltech Computer Center - Professional PC building services, premium components, and expert tech solutions. Build your dream gaming or workstation PC with us.">
+  
+  <!-- Consolidated CSS imports -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    /* Base Styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0a0a0f;
+    }
+
+    /* Consolidated Animations */
+    .animate-all {
+      transition: all 0.3s ease;
+    }
+
+    /* Gradient Effects */
+    .evolving-gradient {
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      background-image: linear-gradient(
+        45deg,
+        rgba(91, 33, 182, 0.15),
+        rgba(29, 78, 216, 0.15),
+        rgba(124, 58, 237, 0.15),
+        rgba(37, 99, 235, 0.15)
+      );
+    }
+
+    .text-gradient-animate {
+      background-size: 200% auto;
+      background-image: linear-gradient(
+        -45deg,
+        #6366f1,
+        #a855f7,
+        #3b82f6,
+        #8b5cf6
+      );
+      animation: textGradient 5s ease infinite;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50% }
+      50% { background-position: 100% 50% }
+      100% { background-position: 0% 50% }
+    }
+
+    @keyframes textGradient {
+      0% { background-position: 0% 50% }
+      50% { background-position: 100% 50% }
+      100% { background-position: 0% 50% }
+    }
+
+    /* Glass Card Effects */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transform: translateY(-5px);
+    }
+
+    /* Product Card Effects */
+    .product-card {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .product-card:hover {
+      transform: translateY(-10px) rotateX(5deg);
+      box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.3);
+    }
+
+    .product-card:hover .product-image {
+      transform: scale(1.05);
+    }
+
+    .product-image {
+      transition: transform 0.5s ease;
+    }
+
+    /* Shine Effect */
+    .shine-effect {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shine-effect::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: rotate(45deg);
+      animation: shine 6s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .slide-in-right {
+      opacity: 0;
+      transform: translateX(50px);
+      animation: slideInRight 0.8s ease-out forwards;
+    }
+
+    .slide-in-left {
+      opacity: 0;
+      transform: translateX(-50px);
+      animation: slideInLeft 0.8s ease-out forwards;
+    }
+
+    .scale-in {
+      opacity: 0;
+      transform: scale(0.9);
+      animation: scaleIn 0.6s ease-out forwards;
+    }
+
+    .stagger-fade-in > * {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .stagger-fade-in > *:nth-child(1) { animation: fadeIn 0.5s ease-out 0.1s forwards; }
+    .stagger-fade-in > *:nth-child(2) { animation: fadeIn 0.5s ease-out 0.2s forwards; }
+    .stagger-fade-in > *:nth-child(3) { animation: fadeIn 0.5s ease-out 0.3s forwards; }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Floating Animation */
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0px); }
+    }
+
+    /* Pulse Animation */
+    .pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Enhanced Background */
+    .bg-mesh {
+      background-image: 
+        linear-gradient(to right, rgba(17, 17, 27, 0.9), rgba(17, 17, 27, 0.8)),
+        radial-gradient(at 20% 30%, rgba(124, 58, 237, 0.2) 0px, transparent 50%),
+        radial-gradient(at 80% 40%, rgba(37, 99, 235, 0.2) 0px, transparent 50%),
+        radial-gradient(at 40% 70%, rgba(91, 33, 182, 0.2) 0px, transparent 50%);
+      background-blend-mode: overlay;
+    }
+
+    .nav-glass {
+      background: rgba(17, 17, 27, 0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  
+    /* Carousel Styles */
+    .carousel {
+      position: relative;
+      overflow: hidden;
+      height: 80vh;
+      margin-bottom: 4rem;
+    }
+
+    .carousel-inner {
+      height: 100%;
+      display: flex;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+
+
+    /* Utility Classes */
+    .text-gradient {
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-white">
+  <!-- Navigation -->
+  <nav class="fixed w-full top-0 left-0 right-0 nav-glass z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-20">
+        <div class="flex-shrink-0 flex items-center">
+          <img class="h-8 w-auto sm:h-12" src="images/logo.png" alt="Keltech Computer Center">
+          <div class="ml-2 sm:ml-3">
+            <p class="text-sm sm:text-lg font-bold text-gradient-animate">Keltech Computer Center</p>
+            <p class="text-xs text-gray-400 hidden sm:block">Premium PC Building & Components</p>
+          </div>
+        </div>
+        <!-- Mobile menu button -->
+        <div class="flex items-center md:hidden">
+          <button id="mobile-menu-button" class="text-gray-200 hover:text-white">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+        </div>
+        <!-- Desktop menu -->
+        <div class="hidden md:flex md:items-center md:space-x-8">
+          <a href="/" class="text-gray-200 hover:text-white font-medium transition-colors">Home</a>
+          <a href="/products.html" class="text-gray-200 hover:text-white font-medium transition-colors">Products</a>
+          <a href="/build-pc.html" class="text-gray-200 hover:text-white font-medium transition-colors">Build PC</a>
+          <a href="/about-developers.html" class="text-gray-200 hover:text-white font-medium transition-colors">About Developers</a>
+          <a href="#" 
+             onclick="openContactModal(event)"
+             class="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-2 rounded-lg font-medium 
+                    hover:from-purple-700 hover:to-blue-700 transition-all duration-300 
+                    shadow-lg hover:shadow-purple-500/25">
+            Contact Us
+          </a>
+        </div>
+      </div>
+      <!-- Mobile menu panel -->
+      <div id="mobile-menu" class="hidden md:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <a href="/" class="block text-gray-200 hover:text-white font-medium p-2">Home</a>
+          <a href="/products.html" class="block text-gray-200 hover:text-white font-medium p-2">Products</a>
+          <a href="/build-pc.html" class="block text-gray-200 hover:text-white font-medium p-2">Build PC</a>
+          <a href="/about-developers.html" class="block text-gray-200 hover:text-white font-medium p-2">About Developers</a>
+          <a href="/contact.html" class="block bg-gradient-to-r from-purple-600 to-blue-600 p-2 rounded-lg font-medium text-center">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen pt-24 sm:pt-32 pb-12 sm:pb-20 overflow-hidden bg-mesh">
+    <div class="absolute inset-0 evolving-gradient opacity-80"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-transparent to-gray-900/80"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center">
+        <div class="text-center md:text-left slide-in-left">
+          <h1 class="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Elevate Your Computing</span>
+            <br />Experience
+          </h1>
+          <p class="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 leading-relaxed">
+            Craft your perfect machine with premium components and expert guidance. Welcome to the future of custom PC building.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <a href="/build-pc.html" 
+               class="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 rounded-lg font-semibold 
+                      hover:from-purple-700 hover:to-blue-700 transition-all duration-300 
+                      shadow-lg hover:shadow-purple-500/25 scale-in">
+              Start Building
+            </a>
+            <a href="/products.html" 
+               class="glass-card px-8 py-4 rounded-lg font-semibold hover:bg-white/20 transition-colors scale-in">
+              Browse Components
+            </a>
+          </div>
+        </div>
+        <div class="hidden md:block slide-in-right">
+          <img src="https://cdn.a1.art/assets/images/app_1811317900177637378/1811317900181831681/9f7a6a4d-6e39-4909-8575-440774f4c3fd.jpeg" 
+               alt="Custom Gaming PC" 
+               class="w-full h-auto rounded-lg shadow-2xl floating">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-16 sm:py-24 bg-gray-900/95 relative overflow-hidden">
+    <div class="absolute inset-0 bg-mesh opacity-30"></div>
+    <div class="absolute inset-0 evolving-gradient opacity-20"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <h2 class="text-2xl sm:text-3xl font-bold text-center mb-12 sm:mb-16 fade-in">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Why Choose Keltech?</span>
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-12 stagger-fade-in">
+        <div class="glass-card p-8 rounded-xl shine-effect">
+          <div class="bg-gradient-to-r from-purple-600 to-blue-600 w-14 h-14 rounded-lg flex items-center justify-center mb-6">
+            <i class="fas fa-desktop text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4 text-white">Expert PC Building</h3>
+          <p class="text-gray-400 leading-relaxed">Professional assembly service with meticulous attention to detail and quality assurance testing.</p>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl shine-effect">
+          <div class="bg-gradient-to-r from-purple-600 to-blue-600 w-14 h-14 rounded-lg flex items-center justify-center mb-6">
+            <i class="fas fa-headset text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4 text-white">Lifetime Support</h3>
+          <p class="text-gray-400 leading-relaxed">Dedicated technical support team available to assist you with any questions or concerns.</p>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl shine-effect">
+          <div class="bg-gradient-to-r from-purple-600 to-blue-600 w-14 h-14 rounded-lg flex items-center justify-center mb-6">
+            <i class="fas fa-shield-alt text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4 text-white">Premium Quality</h3>
+          <p class="text-gray-400 leading-relaxed">Carefully selected components from trusted brands with full warranty coverage.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="py-24 bg-gray-900/90 relative overflow-hidden">
+    <div class="absolute inset-0 bg-mesh opacity-50"></div>
+    <div class="absolute inset-0 evolving-gradient opacity-30"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <h2 class="text-3xl font-bold text-center mb-16 fade-in">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Our Services</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 stagger-fade-in">
+        <a href="/build-pc.html" class="glass-card p-8 rounded-xl shine-effect group">
+          <div class="flex items-start space-x-4">
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-lg">
+              <i class="fas fa-tools text-2xl text-white"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold mb-2 text-white group-hover:text-gradient-animate">Custom PC Builder</h3>
+              <p class="text-gray-400 mb-4">Design your perfect PC with our intuitive builder tool. Get real-time compatibility checks and performance insights.</p>
+              <span class="text-purple-400 font-medium group-hover:text-blue-400 transition-colors">Start Building →</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="" class="glass-card p-8 rounded-xl shine-effect group">
+          <div class="flex items-start space-x-4">
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-4 rounded-lg">
+              <i class="fas fa-headset text-2xl text-white"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold mb-2 text-white group-hover:text-gradient-animate">Technical Support</h3>
+              <p class="text-gray-400 mb-4">Get expert assistance with your PC build, troubleshooting, and maintenance needs.</p>
+              <span class="text-purple-400 font-medium group-hover:text-blue-400 transition-colors">Learn More →</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Carousel Section -->
+  <div class="carousel relative h-screen overflow-hidden mb-24">
+    <div class="carousel-inner h-full flex transition-transform duration-500">
+      <div class="carousel-item min-w-full relative animate__animated animate__fadeIn">
+        <img src="https://images.unsplash.com/photo-1587831990711-23ca6441447b" 
+             alt="Gaming PC Setup" 
+             class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black/80"></div>
+        <div class="absolute bottom-1/4 left-1/2 -translate-x-1/2 text-center z-10 animate__animated animate__fadeInUp">
+          <h2 class="text-4xl md:text-6xl font-bold mb-4 text-gradient-animate">Premium Gaming PCs</h2>
+          <p class="text-xl text-gray-200 mb-6">Experience gaming like never before</p>
+          <a href="/build-pc.html" 
+             class="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 rounded-lg font-semibold 
+                    hover:from-purple-700 hover:to-blue-700 transition-all duration-300 animate__animated animate__pulse animate__infinite">
+            Build Now
+          </a>
+        </div>
+      </div>
+
+      <div class="carousel-item min-w-full relative animate__animated animate__fadeIn">
+        <img src="https://images.unsplash.com/photo-1587831991559-20c3ba67c146" 
+             alt="Workstation Setup" 
+             class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black/80"></div>
+        <div class="absolute bottom-1/4 left-1/2 -translate-x-1/2 text-center z-10 animate__animated animate__fadeInUp">
+          <h2 class="text-4xl md:text-6xl font-bold mb-4 text-gradient-animate">Professional Workstations</h2>
+          <p class="text-xl text-gray-200 mb-6">Powerful solutions for every workflow</p>
+          <a href="/products.html" 
+             class="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 rounded-lg font-semibold 
+                    hover:from-purple-700 hover:to-blue-700 transition-all duration-300 animate__animated animate__pulse animate__infinite">
+            Explore
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Carousel Controls -->
+    <button class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-4 rounded-full transition-all carousel-prev animate__animated animate__fadeInLeft">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-4 rounded-full transition-all carousel-next animate__animated animate__fadeInRight">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    
+    <!-- Carousel Indicators -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2">
+      <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all carousel-indicator"></button>
+      <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all carousel-indicator"></button>
+    </div>
+  </div>
+
+  <!-- Featured Products Section -->
+  <section class="py-24 bg-gray-900/90 backdrop-blur-sm relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-gray-900/50 via-gray-900/80 to-gray-900/90"></div>
+    <div class="absolute inset-0 evolving-gradient opacity-30"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <h2 class="text-3xl font-bold text-center mb-16 fade-in">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Featured Products</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 stagger-fade-in">
+        <!-- Featured Product 1 -->
+        <div class="product-card glass-card rounded-xl p-6 shine-effect">
+          <div class="overflow-hidden rounded-lg mb-4">
+            <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7" 
+                 alt="RTX 4080" 
+                 class="product-image w-full h-48 object-cover rounded-lg">
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gradient-animate">NVIDIA RTX 4080</h3>
+          <p class="text-gray-400 mb-4">Next-gen gaming performance with ray tracing</p>
+          <div class="flex justify-between items-center">
+            <span class="text-purple-400 font-medium">₱89,995</span>
+            <button class="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg font-medium 
+                         hover:from-purple-700 hover:to-blue-700 transition-all duration-300 pulse">
+              Learn More
+            </button>
+          </div>
+        </div>
+        
+        <!-- Featured Product 2 -->
+        <div class="product-card glass-card rounded-xl p-6 shine-effect">
+          <div class="overflow-hidden rounded-lg mb-4">
+            <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea" 
+                 alt="AMD Ryzen 9" 
+                 class="product-image w-full h-48 object-cover rounded-lg">
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gradient-animate">AMD Ryzen 9 7950X</h3>
+          <p class="text-gray-400 mb-4">Ultimate desktop processing power</p>
+          <div class="flex justify-between items-center">
+            <span class="text-purple-400 font-medium">₱44,995</span>
+            <button class="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg font-medium 
+                         hover:from-purple-700 hover:to-blue-700 transition-all duration-300 pulse">
+              Learn More
+            </button>
+          </div>
+        </div>
+        
+        <!-- Featured Product 3 -->
+        <div class="product-card glass-card rounded-xl p-6 shine-effect">
+          <div class="overflow-hidden rounded-lg mb-4">
+            <img src="https://images.unsplash.com/photo-1587202372162-638fa1791a43" 
+                 alt="ROG Motherboard" 
+                 class="product-image w-full h-48 object-cover rounded-lg">
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gradient-animate">ROG MAXIMUS Z790</h3>
+          <p class="text-gray-400 mb-4">Premium gaming motherboard</p>
+          <div class="flex justify-between items-center">
+            <span class="text-purple-400 font-medium">₱39,995</span>
+            <button class="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg font-medium 
+                         hover:from-purple-700 hover:to-blue-700 transition-all duration-300 pulse">
+              Learn More
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 relative overflow-hidden">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Build Your Dream PC?</h2>
+      <p class="text-xl text-gray-300 mb-8">Let our experts help you create the perfect custom build for your needs.</p>
+      <a href="/build-pc.html" 
+         class="inline-block bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 rounded-lg font-semibold 
+                hover:from-purple-700 hover:to-blue-700 transition-all duration-300 
+                shadow-lg hover:shadow-purple-500/25">
+        Start Your Build Now
+      </a>
+      
+    </div>
+  </section>
+  <section>
+    <div class="mapouter"><div class="gmap_canvas"><iframe class="gmap_iframe" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=2000&amp;height=600&amp;hl=en&amp;q= Keltech Computer Center&amp;t=&amp;z=17&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe><a href="https://embed-googlemap.com">embed google maps in website</a></div><style>.mapouter{position:relative;text-align:right;width:2000px;height:600px;}.gmap_canvas {overflow:hidden;background:none!important;width:2000px;height:600px;}.gmap_iframe {width:2000px!important;height:600px!important;}</style></div>
+  </section>
+    <footer class="bg-gray-900 border-t border-gray-800 py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div>
+            <img class="h-8 w-auto mb-4" src="/static/images/logo-white.png" alt="Keltech">
+            <p class="text-gray-400">Your trusted partner in building premium custom PCs and providing top-tier tech solutions.</p>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold mb-4 text-gray-300">Quick Links</h4>
+            <ul class="space-y-2">
+              <li><a href="/build-pc" class="text-gray-400 hover:text-purple-400 transition-colors">PC Builder</a></li>
+              <li><a href="/products" class="text-gray-400 hover:text-purple-400 transition-colors">Products</a></li>
+              <li><a href="/inventory" class="text-gray-400 hover:text-purple-400 transition-colors">Inventory</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold mb-4 text-gray-300">Contact Us</h4>
+            <ul class="space-y-2 text-gray-400">
+              <li><i class="fas fa-map-marker-alt w-6"></i> 123 Tech Street, Manila</li>
+              <li><i class="fas fa-phone w-6"></i> (02) 8123-4567</li>
+              <li><i class="fas fa-envelope w-6"></i> info@keltech.com</li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+          <p class="text-gray-400">© 2024 Keltech Computer Center. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  
+  <!-- Contact Modal -->
+  <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+    <div class="bg-gray-900 rounded-xl p-6 max-w-md w-full mx-4 glass-card animate__animated animate__fadeInUp">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gradient-animate">Choose Contact Method</h3>
+        <button onclick="closeContactModal()" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Gmail Option -->
+        <a href="mailto:keltechcomputercenter@gmail.com" 
+           class="glass-card p-4 rounded-lg hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center">
+            <i class="fas fa-envelope text-2xl text-white"></i>
+          </div>
+          <span class="font-medium">Gmail</span>
+        </a>
+        
+        <!-- Facebook Option -->
+        <a href="https://m.me/KelTechComputerCenter/" target="_blank"
+           class="glass-card p-4 rounded-lg hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center">
+            <i class="fab fa-facebook-messenger text-2xl text-white"></i>
+          </div>
+          <span class="font-medium">Facebook</span>
+        </a>
+      </div>
+      
+      <p class="text-gray-400 text-sm mt-6 text-center">
+        Choose your preferred method to contact our support team
+      </p>
+    </div>
+  </div>
+  
+  <script>
+    // Utility Functions
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => document.querySelectorAll(selector);
+
+    // Carousel Management
+    class Carousel {
+      constructor(element) {
+        this.carousel = element;
+        this.inner = element.querySelector('.carousel-inner');
+        this.items = element.querySelectorAll('.carousel-item');
+        this.nextBtn = element.querySelector('.carousel-next');
+        this.prevBtn = element.querySelector('.carousel-prev');
+        this.indicators = element.querySelectorAll('.carousel-indicator');
+        this.currentIndex = 0;
+        this.totalSlides = this.items.length;
+        this.intervalId = null;
+        
+        this.init();
+      }
+
+      init() {
+        // Add event listeners
+        this.nextBtn.addEventListener('click', () => this.next());
+        this.prevBtn.addEventListener('click', () => this.prev());
+        
+        // Add indicator clicks
+        this.indicators.forEach((indicator, idx) => {
+          indicator.addEventListener('click', () => this.goToSlide(idx));
+        });
+
+        // Start autoplay
+        this.startAutoplay();
+
+        // Pause on hover
+        this.carousel.addEventListener('mouseenter', () => this.stopAutoplay());
+        this.carousel.addEventListener('mouseleave', () => this.startAutoplay());
+
+        // Set initial state
+        this.updateCarousel();
+      }
+
+      next() {
+        this.currentIndex = (this.currentIndex + 1) % this.totalSlides;
+        this.updateCarousel();
+      }
+
+      prev() {
+        this.currentIndex = (this.currentIndex - 1 + this.totalSlides) % this.totalSlides;
+        this.updateCarousel();
+      }
+
+      goToSlide(index) {
+        this.currentIndex = index;
+        this.updateCarousel();
+      }
+
+      updateCarousel() {
+        // Update slide position
+        this.inner.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+        
+        // Update indicators
+        this.indicators.forEach((indicator, idx) => {
+          indicator.classList.toggle('bg-white', idx === this.currentIndex);
+          indicator.classList.toggle('bg-white/50', idx !== this.currentIndex);
+        });
+
+        // Add animation classes to current slide
+        this.items.forEach((item, idx) => {
+          if (idx === this.currentIndex) {
+            item.classList.add('animate__fadeIn');
+            item.querySelector('.carousel-caption')?.classList.add('animate__fadeInUp');
+          } else {
+            item.classList.remove('animate__fadeIn');
+            item.querySelector('.carousel-caption')?.classList.remove('animate__fadeInUp');
+          }
+        });
+      }
+
+      startAutoplay() {
+        this.stopAutoplay(); // Clear any existing interval
+        this.intervalId = setInterval(() => this.next(), 5000);
+      }
+
+      stopAutoplay() {
+        if (this.intervalId) {
+          clearInterval(this.intervalId);
+          this.intervalId = null;
+        }
+      }
+    }
+
+    // Initialize when document is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      const carousel = new Carousel($('.carousel'));
+    });
+
+    // Initialize Components
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize carousel
+      new Carousel($('.carousel'));
+
+      // Initialize scroll observer
+      const observer = new IntersectionObserver(
+        // ...existing observer code...
+      );
+
+      // Initialize animations
+      $$('.animate-on-scroll').forEach(el => observer.observe(el));
+    });
+
+    // Scroll Handling
+    window.addEventListener('scroll', () => {
+      // ...existing scroll handling code...
+    });
+
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      let isMenuOpen = false;
+
+      mobileMenuButton.addEventListener('click', () => {
+        isMenuOpen = !isMenuOpen;
+        mobileMenu.classList.toggle('hidden');
+        mobileMenuButton.innerHTML = isMenuOpen ? 
+          '<i class="fas fa-times text-2xl"></i>' : 
+          '<i class="fas fa-bars text-2xl"></i>';
+      });
+
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target) && !isMenuOpen) {
+          mobileMenu.classList.add('hidden');
+          mobileMenuButton.innerHTML = '<i class="fas fa-bars text-2xl"></i>';
+          isMenuOpen = false;
+        }
+      });
+
+      // Responsive behavior for maps
+      const mapContainer = document.querySelector('.mapouter');
+      const updateMapSize = () => {
+        const width = window.innerWidth;
+        mapContainer.style.width = '100%';
+        const iframe = mapContainer.querySelector('.gmap_iframe');
+        if (iframe) {
+          iframe.style.width = '100%';
+        }
+        const gmapCanvas = mapContainer.querySelector('.gmap_canvas');
+        if (gmapCanvas) {
+          gmapCanvas.style.width = '100%';
+        }
+      };
+
+      // Initial call and listen for resize
+      updateMapSize();
+      window.addEventListener('resize', updateMapSize);
+    });
+
+    // Contact Modal Functions
+    function openContactModal(event) {
+      event.preventDefault();
+      const modal = document.getElementById('contactModal');
+      modal.classList.remove('hidden');
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeContactModal() {
+      const modal = document.getElementById('contactModal');
+      modal.classList.add('hidden');
+      // Restore body scroll
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('contactModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        closeContactModal();
+      }
+    });
+
+    // ...existing carousel and other scripts...
+  </script>
+
+  <!-- Make sure you have a toast element in your HTML: -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden flex items-center">
+      <span id="toastMessage"></span>
+      <button onclick="this.parentElement.classList.add('hidden')" class="ml-3 text-white">
+          <i class="fas fa-times"></i>
+      </button>
+  </div>
+</body>
+
+</html>
+<!-- The Future of Technology is Here -->

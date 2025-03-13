@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keltech Computer Components - Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold text-gray-800">Keltech</h1>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="#" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Products
+                        </a>
+                        <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Build PC
+                        </a>
+                        <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Contact
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button id="cartButton" class="relative p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span id="cartCount" class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search and Filter -->
+        <div class="mb-8 flex flex-col sm:flex-row gap-4">
+            <div class="flex-1">
+                <input type="text" id="searchInput" placeholder="Search products..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="flex gap-4">
+                <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Categories</option>
+                    <option value="CPU">Processors</option>
+                    <option value="Motherboard">Motherboards</option>
+                    <option value="RAM">Memory</option>
+                    <option value="Storage">Storage</option>
+                    <option value="GPU">Graphics Cards</option>
+                    <option value="PSU">Power Supplies</option>
+                </select>
+                <select id="sortFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="name">Sort by Name</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Products will be dynamically added here -->
+        </div>
+    </main>
+
+    <!-- Shopping Cart Modal -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-start justify-center pt-16">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Shopping Cart</h3>
+                <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="cartItems" class="space-y-4 mb-6">
+                <!-- Cart items will be dynamically added here -->
+            </div>
+            <div class="border-t pt-4">
+                <div class="flex justify-between text-lg font-semibold mb-4">
+                    <span>Total:</span>
+                    <span id="cartTotal">₱0.00</span>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button onclick="toggleCart()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Continue Shopping
+                    </button>
+                    <button onclick="checkout()" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Store cart data
+        let cart = [];
+        let inventory = [];
+
+        // Load inventory from server
+        async function loadProducts() {
+            try {
+                const response = await fetch('/kc/api/products.php');
+                if (!response.ok) {
+                    throw new Error('Failed to load products');
+                }
+                const data = await response.json();
+                if (data.products) {
+                    inventory = data.products;
+                    console.log('Loaded products:', inventory); // Debug log
+                    updateProductsGrid();
+                } else {
+                    throw new Error('Invalid data format received from server');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showToast('Error loading products', 'error');
+            }
+        }
+
+        // Update products grid
+        function updateProductsGrid() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryValue = document.getElementById('categoryFilter').value;
+            const sortValue = document.getElementById('sortFilter').value;
+
+            let filteredProducts = inventory.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = !categoryValue || product.category === categoryValue;
+                return matchesSearch && matchesCategory;
+            });
+
+            // Sort products
+            filteredProducts.sort((a, b) => {
+                const batchA = a.batches?.find(batch => parseInt(batch.remaining) > 0);
+                const batchB = b.batches?.find(batch => parseInt(batch.remaining) > 0);
+                
+                switch (sortValue) {
+                    case 'price-low':
+                        return (batchA?.sellPrice || 0) - (batchB?.sellPrice || 0);
+                    case 'price-high':
+                        return (batchB?.sellPrice || 0) - (batchA?.sellPrice || 0);
+                    default:
+                        return a.name.localeCompare(b.name);
+                }
+            });
+
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = filteredProducts.map(product => {
+                const availableBatch = product.batches?.find(batch => parseInt(batch.remaining) > 0);
+                const inStock = availableBatch && parseInt(availableBatch.remaining) > 0;
+                const price = availableBatch ? parseFloat(availableBatch.sellPrice) : 0;
+
+                // Format specifications based on category
+                const specs = formatSpecifications(product);
+
+                return `
+                    <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                        <h3 class="text-lg font-semibold mb-2">${product.name}</h3>
+                        <div class="text-sm text-gray-600 mb-4">
+                            ${specs}
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <div class="text-lg font-bold text-gray-900">₱${price.toFixed(2)}</div>
+                                <div class="text-sm ${inStock ? 'text-green-600' : 'text-red-600'}">
+                                    ${inStock ? `${availableBatch.remaining} in Stock` : 'Out of Stock'}
+                                </div>
+                            </div>
+                            <button onclick="addToCart('${product.id}')"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    ${!inStock ? 'disabled' : ''}>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Format specifications for display
+        function formatSpecifications(product) {
+            if (!Array.isArray(product.specifications) || product.specifications.length === 0) {
+                return '<span class="text-gray-400">No specifications available</span>';
+            }
+
+            // Group specifications by category
+            const specs = product.specifications;
+            
+            // Special formatting for CPUs
+            if (product.category === 'CPU') {
+                return `
+                    <div class="grid grid-cols-2 gap-2">
+                        ${specs.map(spec => `
+                            <div class="px-2 py-1 bg-gray-100 rounded-lg">
+                                <span class="font-medium">${spec.name}:</span>
+                                <span>${spec.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // Default specification display
+            return specs.map(spec => 
+                `<div class="flex justify-between py-1">
+                    <span class="font-medium">${spec.name}:</span>
+                    <span>${spec.value}</span>
+                </div>`
+            ).join('');
+        }
+
+        // Add to cart
+        async function addToCart(productId) {
+            const product = inventory.find(p => p.id === productId);
+            if (!product) return;
+
+            const availableBatch = product.batches?.find(batch => parseInt(batch.remaining) > 0);
+            if (!availableBatch) return;
+
+            const existingItem = cart.find(item => item.productId === productId);
+            if (existingItem) {
+                if (existingItem.quantity < availableBatch.remaining) {
+                    existingItem.quantity++;
+                    showToast('Updated quantity in cart');
+                } else {
+                    showToast('Maximum available quantity reached', 'error');
+                    return;
+                }
+            } else {
+                cart.push({
+                    productId,
+                    productName: product.name,
+                    batchId: availableBatch.batchId,
+                    buyPrice: parseFloat(availableBatch.buyPrice),
+                    price: parseFloat(availableBatch.sellPrice),
+                    quantity: 1,
+                    maxQuantity: parseInt(availableBatch.remaining)
+                });
+                showToast('Added to cart');
+            }
+
+            updateCartCount();
+            updateCartItems();
+        }
+
+        // Update cart count
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = count;
+        }
+
+        // Update cart items
+        function updateCartItems() {
+            const cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center">
+                    <div class="flex-1">
+                        <div class="font-medium">${item.productName}</div>
+                        <div class="text-sm text-gray-500">₱${item.price.toFixed(2)} × ${item.quantity}</div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateCartItemQuantity('${item.productId}', ${item.quantity - 1})"
+                                class="px-2 py-1 text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="w-8 text-center">${item.quantity}</span>
+                        <button onclick="updateCartItemQuantity('${item.productId}', ${item.quantity + 1})"
+                                class="px-2 py-1 text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button onclick="removeFromCart('${item.productId}')"
+                                class="px-2 py-1 text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cartTotal').textContent = `₱${total.toFixed(2)}`;
+        }
+
+        // Update cart item quantity
+        async function updateCartItemQuantity(productId, newQuantity) {
+            const item = cart.find(item => item.productId === productId);
+            if (!item) return;
+
+            const product = inventory.find(p => p.id === productId);
+            const availableBatch = product?.batches?.find(batch => batch.batchId === item.batchId);
+            
+            if (newQuantity <= 0) {
+                removeFromCart(productId);
+            } else if (availableBatch && newQuantity <= availableBatch.remaining) {
+                item.quantity = newQuantity;
+                updateCartCount();
+                updateCartItems();
+                showToast('Cart updated');
+            } else {
+                showToast('Maximum available quantity reached', 'error');
+            }
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.productId !== productId);
+            updateCartCount();
+            updateCartItems();
+            showToast('Removed from cart');
+        }
+
+        // Toggle cart modal
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Checkout function
+        async function checkout() {
+            if (cart.length === 0) {
+                showToast('Your cart is empty', 'error');
+                return;
+            }
+
+            try {
+                // Process each cart item as a transaction
+                for (const item of cart) {
+                    const transactionData = {
+                        type: 'sale',
+                        quantity: item.quantity,
+                        batchId: item.batchId,
+                        buyPrice: item.buyPrice,
+                        sellPrice: item.price,
+                        profit: (item.price - item.buyPrice) * item.quantity,
+                        date: new Date().toISOString()
+                    };
+
+                    const response = await fetch(`/kc/api/transactions.php?productId=${item.productId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(transactionData)
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Failed to process transaction');
+                    }
+                }
+
+                // Clear cart and update UI
+                cart = [];
+                updateCartCount();
+                updateCartItems();
+                toggleCart();
+                showToast('Order placed successfully!');
+                
+                // Reload inventory to update stock levels
+                await loadProducts();
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showToast(error.message || 'Failed to process order', 'error');
+            }
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `fixed bottom-4 right-4 ${type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white px-6 py-3 rounded-lg shadow-lg flex items-center`;
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', updateProductsGrid);
+        document.getElementById('categoryFilter').addEventListener('change', updateProductsGrid);
+        document.getElementById('sortFilter').addEventListener('change', updateProductsGrid);
+        document.getElementById('cartButton').addEventListener('click', toggleCart);
+
+        // Initialize
+        loadProducts();
+    </script>
+</body>
+</html> 
